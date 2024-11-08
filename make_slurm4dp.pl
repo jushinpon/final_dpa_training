@@ -20,9 +20,10 @@ my %sbatch_para = (
             #cpus_per_task => 1,
             partition => "All",#which partition you want to use
             #partition => "All",#which partition you want to use
-            basename => "alloy_r9", #for alloy.json
+            basename => "alloy_dpa2_pth_rcut9", #for alloy.json
+            #basename => "alloy_r9", #for alloy.json
             #basename => "oc2m_r9", #for alloy.json
-            out_dir => "Alloy_dpa1_pb_rcut9"        
+            out_dir => "Alloy_dpa2_pth_rcut9"        
             #out_dir => "OC2M_dpa1_pb_rcut9"        
             );
 
@@ -57,9 +58,15 @@ my $here_doc =<<"END_MESSAGE";
 ##SBATCH --nodelist=master
 
 hostname
+
+#source /opt/anaconda3/bin/activate deepmd-cpu-v3
+#export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+#export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
+
 source /opt/anaconda3/bin/activate deepmd-cpu
 export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
 export PATH=/opt/deepmd-cpu/bin:\$PATH
+
 
 node=$sbatch_para{nodes}
 threads=\$(nproc)
@@ -67,25 +74,27 @@ processors=\$(nproc)
 np=\$((\$node*\$processors/\$threads))
 
 #The following for deepmd v3
-export DP_INTRA_OP_PARALLELISM_THREADS=\$processors
-export DP_INTER_OP_PARALLELISM_THREADS=\$np
+#export DP_INTRA_OP_PARALLELISM_THREADS=\$processors
+#export DP_INTER_OP_PARALLELISM_THREADS=\$np
+
+export DP_INTRA_OP_PARALLELISM_THREADS=\$np
+export DP_INTER_OP_PARALLELISM_THREADS=\$processors
 export OMP_NUM_THREADS=\$processors
+### sometimes works 
+#export OMP_NUM_THREADS=1
 
-#export TF_INTRA_OP_PARALLELISM_THREADS=\$np
-#export TF_INTER_OP_PARALLELISM_THREADS=\$threads
+## dpa1
+#dp train $basename.json --skip-neighbor-stat
+#dp freeze -o $basename.pb
+#dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
 
-
-
-dp train $basename.json --skip-neighbor-stat
-#dp --pt train $basename.json --skip-neighbor-stat
-dp freeze -o $basename.pb
-#dp --pt freeze -o $basename.pth
-#torchrun --nproc_per_node=\$np --no-python dp --pt train $basename.json --skip-neighbor-stat
-dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
-#dp compress -i alloy.pb -o alloy_compress.pb -t alloy.json
+##dpa2 (no compress currently)
+dp --pt train $basename.json --skip-neighbor-stat
+dp --pt freeze -o $basename.pth
 
 END_MESSAGE
     unlink "$sbatch_para{out_dir}/$basename.sh";
+    print "$sbatch_para{out_dir}/$basename.sh\n";
     open(FH, "> $sbatch_para{out_dir}/$basename.sh") or die $!;
     print FH $here_doc;
     close(FH);        

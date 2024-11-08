@@ -63,19 +63,17 @@ map { s/^\s+|\s+$//g; } @elements;
 my $elements = join(" ",@elements);
 chomp $elements;
 
+
+unless (@elements){
+    print "No type_map.raw, you need to provide the DLP elements\n";
+    @elements = ("");
+}
+
+die "NO DLP elements assigned\n" unless (@elements);
+
+
 my @DLP_elements = (@elements);#your DLP element sequence
 
-#print "$elements\n";
-#die;
-
-### for alloy
-#my @train_dir = `find $source -mindepth 2 -type d -name "train"`;
-#map { s/^\s+|\s+$//g; } @train_dir;
-#my @val_dir = `find $source -type d -name "valid"`;
-#map { s/^\s+|\s+$//g; } @val_dir;
-############### end of alloy
-
-### for OC2M
 my @train_dir = `find $source -type d -name "set*"`;
 # Remove /set*** from each path
 map { s|/set.*$||; } @train_dir;
@@ -87,17 +85,6 @@ for my $n (@train_dir){
     print "$n\n";
 }
 
-#
-##find nsel
-#my @allnpy = @all_train_dataset;
-##my @allnpy = (@all_train_dataset,@all_val_dataset);
-#my $rlist = $rcut;
-#my $ele = join (" ",@elements);
-#my $eleno = @elements - 1;
-##my $eleno = @elements;
-#chomp $ele;
-#my $max = 1;
-#
 my @all_train_dataset = @train_dir;
 #@all_train_dataset = (@all_train_dataset,@all_val_dataset);
 

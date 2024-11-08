@@ -1,3 +1,30 @@
+=b
+Mg-Y
+"rcut_smth":       2.00,
+"rcut":            8.00,
+
+water:
+ "descriptor": {
+      "type": "se_atten_v2",
+      "sel": 120,
+      "rcut_smth": 0.50,
+      "rcut": 6.00,
+ionic bond:
+
+"rcut_smth": 0.5,
+"rcut": 6.0,
+
+ionic and partal covalent bonding:
+"rcut_smth": 6.0,
+"rcut": 7.0,
+
+dpa2 for multi-task
+"sel": 120,
+"rcut_smth": 8.0,
+"rcut": 9.0,      
+
+=cut
+
 use strict;
 use warnings;
 use Cwd;
@@ -7,19 +34,24 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/opt/Alloy";
-my $DLPjson = "alloy.json";
+my $source = "/home/dp_data/Alloy";
+my $DLPjson = "alloy_dpa2_pth_rcut9.json";
+my $out_dir = "Alloy_dpa2_pth_rcut9";#remember to assign the corresponding rcut
+`rm -rf $out_dir`;
+`mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
-my $temp_json = "alloy_torch_medium.json";
+my $temp_json = "dpa2_noVal.json";
 my $trainstep = 2000000;# 2500000 for final training
 my $descriptor_type = "dpa2";
 
-my $rcut = 5.5;
-my $rcut_smth = 5.00001;
+
+my $rcut = 9.0000001;
+my $rcut_smth = 8.00001;
 
 #my $source = "/opt/OC2M";
 my $currentPath = getcwd();
 
+### if type_map.raw exists
 my @ele_raw = `find $source -type f -name "type_map.raw"`;
 map { s/^\s+|\s+$//g; } @ele_raw;
 
@@ -29,95 +61,31 @@ map { s/^\s+|\s+$//g; } @elements;
 my $elements = join(" ",@elements);
 chomp $elements;
 
+unless (@elements){
+    print "No type_map.raw, you need to provide the DLP elements\n";
+    @elements = ("");
+}
+
+die "NO DLP elements assigned\n" unless (@elements);
+
 my @DLP_elements = (@elements);#your DLP element sequence
 
-#print "$elements\n";
-#die;
-my @train_dir = `find $source -mindepth 2 -type d -name "train"`;
+my @train_dir = `find $source -type d -name "set*"`;
+# Remove /set*** from each path
+map { s|/set.*$||; } @train_dir;
 map { s/^\s+|\s+$//g; } @train_dir;
+die "No training dataset was found\n" unless(@train_dir);
 
-my @val_dir = `find $source -type d -name "valid"`;
-map { s/^\s+|\s+$//g; } @val_dir;
-
-#print "\nThe following is for training:\n";
-#for my $n (@train_dir){
-#    print "$n\n";
-#}
-#print "\nThe following is for validation:\n";
-#for my $n (@val_dir){
-#    print "$n\n";
-#}
-### You need to check the above first!!!!!
-
-#get all training data set
-my @all_train_dataset;
+print "\nThe following is for training:\n";
 for my $n (@train_dir){
-    my @temp = `find $n -mindepth 1 -maxdepth 1 -type d`;
-    map { s/^\s+|\s+$//g; } @temp;
-    for my $i (@temp){
-        push @all_train_dataset,$i;
-    }
-#    my $temp = join("\n",@temp);
+    print "$n\n";
 }
-my $all_train_dataset = join("\n",@all_train_dataset);
-chomp $all_train_dataset;
 
-#get all validation data set
-my @all_val_dataset;
-for my $n (@val_dir){
-    my @temp = `find $n -mindepth 1 -maxdepth 1 -type d`;
-    map { s/^\s+|\s+$//g; } @temp;
-    for my $i (@temp){
-        push @all_val_dataset,$i;
-    }
-    #my $temp = join("\n",@temp);
-    #push @all_val_dataset,$temp;
-}
-my $all_val_dataset = join("\n",@all_val_dataset);
-chomp $all_val_dataset;
-#print "$all_val_dataset\n";
+my @all_train_dataset = @train_dir;
+#@all_train_dataset = (@all_train_dataset,@all_val_dataset);
 
-#find nsel
-my @allnpy = (@all_train_dataset,@all_val_dataset);
-my $rlist = $rcut;
-my $ele = join (" ",@elements);
-my $eleno = @elements - 1;
-#my $eleno = @elements;
-chomp $ele;
-my $max = 1;
-#for my $n (@allnpy){
-#    #for my $e (@elements){
-#        print "$n\n";
-#        #dp --tf neighbor-stat -s data -r 6.0 -t O H
-#        my $temp = `dp --tf neighbor-stat -s $n -r $rlist -t $ele 2>&1| grep -A 5 max_nbor_size:`;
-#       # map { s/^\s+|\s+$//g; } @temp;
-#        
-#        $temp =~ s/^\s+|\s+$//g;
-#        print "*********************";#\$temp: @temp\n";
-#       # if ($capture && /\[([^\]]+)\]/) {
-#        $temp =~  /((?:\d+\s+){$eleno}\d+)/;
-#        #print "\$1:$1";
-#        my @numbers = split ' ', $1;  # Split numbers by whitespace
-#        die "element numbers are not identical!\n" unless(@numbers == @elements);
-#        $max = max($max,@numbers);
-#        print "\$max:$max\n";
-#        #for (0 .. $#numbers){
-#        #    print "$_: $numbers[$_]\n";
-##
-#        #}
-#        ##push @max_nbor_size, @numbers;
-#       ##  }
-#        #print "+++++++++++++++++++++++\n";
-#        #die;
-#        #last;
-#    #}
-##die;
-#}
-# print "******Final \$max: $max\n";
-#my $nsel = $max + 5;
-
-@all_train_dataset = (@all_train_dataset,@all_val_dataset[0.. $#all_val_dataset - 1]);
-@all_val_dataset = ($all_val_dataset[-1]);
+#@all_train_dataset = (@all_train_dataset,@all_val_dataset[0.. $#all_val_dataset - 1]);
+#@all_val_dataset = ($all_val_dataset[-1]);
 #die;
 my %dptrain_setting; 
 $dptrain_setting{type_map} = [@DLP_elements];# json template file
@@ -127,7 +95,7 @@ $dptrain_setting{type_map} = [@DLP_elements];# json template file
 $dptrain_setting{trainstep} = $trainstep;#you may set a smaller train step for the first several dpgen processes
 #$dptrain_setting{final_trainstep} = 200000;
 #lr(t) = start_lr * decay_rate ^ ( t / decay_steps ),default decay_rate:0.95
-$dptrain_setting{start_lr} = 0.002;
+$dptrain_setting{start_lr} = 0.001;
 my $t1 = log(3.0e-08/$dptrain_setting{start_lr});
 my $t2 = log(0.95)*$dptrain_setting{trainstep};
 my $dcstep = floor($t2/$t1);
@@ -162,7 +130,7 @@ my $decoded = $json_parser->decode($json);
 
 $decoded->{training}->{training_data}->{systems} = [@all_train_dataset];#clean it first
 #find folders with /val
-$decoded->{training}->{validation_data}->{systems} = [@all_val_dataset];#clean it first
+#$decoded->{training}->{validation_data}->{systems} = [@all_val_dataset];#clean it first
 $decoded->{model}->{type_map} = [@DLP_elements];#clean it first
 ###
 
@@ -190,7 +158,7 @@ $decoded->{model}->{descriptor}->{repinit}->{rcut_smth} = $dptrain_setting{rcut_
 `rm -f ./$DLPjson`;   
 {
     local $| = 1;
-    open my $fh, '>', "./$DLPjson";
+    open my $fh, '>', "$out_dir/$DLPjson";
     print $fh JSON::PP->new->pretty->encode($decoded);#encode_json($decoded);
         close $fh;
 }
