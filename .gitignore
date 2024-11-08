@@ -1,0 +1,26 @@
+# Ignore everything in all subfolders
+*/
+
+# Ignore all files in all directories
+**/*
+
+# Unignore all files in the root directory
+!/*
+
+*.dat
+*.out
+*.txt
+*.sout
+test*.pl
+*test.pl
+nohup.out
+# Ignore everything in all subfolders
+#**/*
+#
+## Exclude the json_examples directory and its contents
+!json_examples/
+!json_examples/**
+!mdtest/
+!mdtest/**
+.cfg
+.log

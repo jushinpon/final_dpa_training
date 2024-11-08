@@ -1,0 +1,93 @@
+# LAMMPS input script for using a DPA-2 model with Au
+plugin load libdeepmd_lmp.so
+units metal
+atom_style atomic
+boundary p p p
+
+# Create a simulation box for gold (Au)
+lattice fcc 4.08  # Set the lattice constant for Au in Angstrom
+region box block 0 10 0 10 0 10
+create_box 1 box
+create_atoms 1 box
+
+mass 1 196.96657  # Atomic mass of Au
+
+# Pair style for using the DeepMD model (DPA-2 in PyTorch)
+pair_style deepmd alloy.pth 
+pair_coeff * * Ag #Er In Ca Ga Li Gd Pt Sn Au La Ho Cu Mg Tb Fe Hf Os Mn Nd Si Lu Be Ti Cd Zr Pd Al Pr Zn Tm Ag Dy Ni Ce Sc Pb Nb Ir Ge Ru Sm Rh Y Ta V Co Sr Re W Mo Cr Na K
+
+#mass 1 167.26
+#mass 2 114.82
+#mass 3 40.08
+#mass 4 69.72
+#mass 5 6.94
+#mass 6 157.25
+#mass 7 195.08
+#mass 8 118.71
+#mass 9 196.97
+#mass 10 138.91
+#mass 11 164.93
+#mass 12 63.55
+#mass 13 24.31
+#mass 14 158.93
+#mass 15 55.85
+#mass 16 178.49
+#mass 17 190.23
+#mass 18 54.94
+#mass 19 144.24
+#mass 20 28.09
+#mass 21 174.97
+#mass 22 9.01
+#mass 23 47.87
+#mass 24 112.41
+#mass 25 91.22
+#mass 26 106.42
+#mass 27 26.98
+#mass 28 140.91
+#mass 29 65.38
+#mass 30 168.93
+#mass 31 107.87
+#mass 32 162.50
+#mass 33 58.69
+#mass 34 140.12
+#mass 35 44.96
+#mass 36 207.2
+#mass 37 92.91
+#mass 38 192.22
+#mass 39 72.63
+#mass 40 101.07
+#mass 41 150.36
+#mass 42 102.91
+#mass 43 88.91
+#mass 44 180.95
+#mass 45 50.94
+#mass 46 58.93
+#mass 47 87.62
+#mass 48 186.21
+#mass 49 183.84
+#mass 50 95.95
+#mass 51 52.00
+#mass 52 22.99
+#mass 53 39.10
+
+# Define neighbor list settings
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+# Define thermodynamic output
+thermo 1
+thermo_style custom step temp density pe ke etotal press lx ly lz 
+
+# Set up integration parameters
+timestep 0.001  # Timestep in picoseconds
+velocity all create 300.0 12345 mom yes dist gaussian  # Initialize velocity at 300 K
+
+# Run the simulation
+fix 1 all npt temp 300.0 300.0 0.1 aniso 0.0 0.0 1  # NVT ensemble at 300 K
+dump 1 all custom 100 alloy_*.cfg id type x y z
+run 10000
+
+# Output trajectory
+dump_modify 1 sort id
+unfix 1
+undump 1
