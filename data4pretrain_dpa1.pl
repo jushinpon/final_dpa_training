@@ -34,24 +34,24 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/shaohan/dp_train_test/have_add/dp_train_new/all_npy";
+my $source = "/home/panggn/dp_train_new_final_newsett/all_npy/";
 #my $source = "/home/dp_data/Alloy";
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
-
-my $DLPjson = "borophene_dpa1nl1_pb_rcut9.json";
-my $out_dir = "borophene_dpa1nl1_pb_rcut9";#remember to assign the corresponding rcut
+my $finetune = "yes"; #no for scratch
+my $DLPjson = "hec_pb_rcut9_finetune.json";
+my $out_dir = "hec_pb_rcut9_finetune";#remember to assign the corresponding rcut
 #my $out_dir = "alloy_dpa1_pb";
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
 my $temp_json = "dpa1_noVal.json";
-my $trainstep = 2000000;# 2500000 for final training
+my $trainstep = 1000000;# 2500000 for final training
 my $descriptor_type = "dpa1";#no use
 
 my $rcut = 9.00001;
 my $rcut_smth = 8.000001;
-
+my $lr = 0.0001; #for training 0.001, for finetune 0.0001
 #my $source = "/opt/OC2M";
 my $currentPath = getcwd();
 
@@ -71,10 +71,14 @@ my $currentPath = getcwd();
 #}
 #
 #die "NO DLP elements assigned\n" unless (@elements);
-my @elements = ( "Al",
-         "B",
-         "Na",
-         "Ru");
+my @elements = (
+         "Hf",
+         "Nb",
+         "Ta",
+         "Ti",
+         "Zr",
+         "C",
+         "N");
 
 my @DLP_elements = (@elements);#your DLP element sequence
 
@@ -103,7 +107,7 @@ $dptrain_setting{type_map} = [@DLP_elements];# json template file
 $dptrain_setting{trainstep} = $trainstep;#you may set a smaller train step for the first several dpgen processes
 #$dptrain_setting{final_trainstep} = 200000;
 #lr(t) = start_lr * decay_rate ^ ( t / decay_steps ),default decay_rate:0.95
-$dptrain_setting{start_lr} = 0.001;
+$dptrain_setting{start_lr} = $lr;
 my $t1 = log(3.0e-08/$dptrain_setting{start_lr});
 my $t2 = log(0.95)*$dptrain_setting{trainstep};
 my $dcstep = floor($t2/$t1);
@@ -140,6 +144,8 @@ $decoded->{training}->{training_data}->{systems} = [@all_train_dataset];#clean i
 #find folders with /val
 #$decoded->{training}->{validation_data}->{systems} = [@all_val_dataset];#clean it first
 $decoded->{model}->{type_map} = [@DLP_elements];#clean it first
+#for finetune
+if($finetune eq "yes"){$decoded->{model}->{type_embedding}->{trainable}= "true";}
 ###
 
 my $seed1 = ceil(12345 * rand());

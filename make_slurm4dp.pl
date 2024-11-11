@@ -20,10 +20,11 @@ my %sbatch_para = (
             #cpus_per_task => 1,
             partition => "All",#which partition you want to use
             #partition => "All",#which partition you want to use
-            basename => "borophene_dpa1nl1_pb_rcut9", #for alloy.json
+            basename => "hec_pb_rcut9_finetune", #for alloy.json
             #basename => "alloy_r9", #for alloy.json
             #basename => "oc2m_r9", #for alloy.json
-            out_dir => "borophene_dpa1nl1_pb_rcut9"        
+            out_dir => "hec_pb_rcut9_finetune",
+            finetune_file => "/opt/dpa_pretrained/oc2m_r9.pb"        
             #out_dir => "OC2M_dpa1_pb_rcut9"        
             );
 
@@ -84,7 +85,12 @@ export OMP_NUM_THREADS=\$processors
 #export OMP_NUM_THREADS=1
 
 ## dpa1
-dp train $basename.json --skip-neighbor-stat
+#dp train $basename.json --skip-neighbor-stat
+#dp freeze -o $basename.pb
+#dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
+
+## dpa1 finetune
+dp train $basename.json --skip-neighbor-stat --finetune $sbatch_para{finetune_file}
 dp freeze -o $basename.pb
 dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
 
