@@ -20,10 +20,10 @@ my %sbatch_para = (
             #cpus_per_task => 1,
             partition => "All",#which partition you want to use
             #partition => "All",#which partition you want to use
-            basename => "alloy_dpa2_pth_rcut9", #for alloy.json
+            basename => "borophene_dpa1nl1_pb_rcut9", #for alloy.json
             #basename => "alloy_r9", #for alloy.json
             #basename => "oc2m_r9", #for alloy.json
-            out_dir => "Alloy_dpa2_pth_rcut9"        
+            out_dir => "borophene_dpa1nl1_pb_rcut9"        
             #out_dir => "OC2M_dpa1_pb_rcut9"        
             );
 
@@ -59,13 +59,13 @@ my $here_doc =<<"END_MESSAGE";
 
 hostname
 
-#source /opt/anaconda3/bin/activate deepmd-cpu-v3
-#export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-#export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
+source /opt/anaconda3/bin/activate deepmd-cpu-v3
+export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
 
-source /opt/anaconda3/bin/activate deepmd-cpu
-export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-export PATH=/opt/deepmd-cpu/bin:\$PATH
+#source /opt/anaconda3/bin/activate deepmd-cpu
+#export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+#export PATH=/opt/deepmd-cpu/bin:\$PATH
 
 
 node=$sbatch_para{nodes}
@@ -84,13 +84,13 @@ export OMP_NUM_THREADS=\$processors
 #export OMP_NUM_THREADS=1
 
 ## dpa1
-#dp train $basename.json --skip-neighbor-stat
-#dp freeze -o $basename.pb
-#dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
+dp train $basename.json --skip-neighbor-stat
+dp freeze -o $basename.pb
+dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
 
 ##dpa2 (no compress currently)
-dp --pt train $basename.json --skip-neighbor-stat
-dp --pt freeze -o $basename.pth
+#dp --pt train $basename.json --skip-neighbor-stat
+#dp --pt freeze -o $basename.pth
 
 END_MESSAGE
     unlink "$sbatch_para{out_dir}/$basename.sh";

@@ -34,12 +34,13 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/dp_data/Alloy";
+my $source = "/home/shaohan/dp_train_test/have_add/dp_train_new/all_npy";
+#my $source = "/home/dp_data/Alloy";
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
 
-my $DLPjson = "alloy_r9.json";
-my $out_dir = "Alloy_dpa1_pb_rcut9";#remember to assign the corresponding rcut
+my $DLPjson = "borophene_dpa1nl1_pb_rcut9.json";
+my $out_dir = "borophene_dpa1nl1_pb_rcut9";#remember to assign the corresponding rcut
 #my $out_dir = "alloy_dpa1_pb";
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
@@ -54,23 +55,26 @@ my $rcut_smth = 8.000001;
 #my $source = "/opt/OC2M";
 my $currentPath = getcwd();
 
-my @ele_raw = `find $source -type f -name "type_map.raw"`;
-map { s/^\s+|\s+$//g; } @ele_raw;
-
-my @elements = `cat $ele_raw[0]`;
-map { s/^\s+|\s+$//g; } @elements;
-
-my $elements = join(" ",@elements);
-chomp $elements;
-
-
-unless (@elements){
-    print "No type_map.raw, you need to provide the DLP elements\n";
-    @elements = ("");
-}
-
-die "NO DLP elements assigned\n" unless (@elements);
-
+#my @ele_raw = `find $source -type f -name "type_map.raw"`;
+#map { s/^\s+|\s+$//g; } @ele_raw;
+#
+#my @elements = `cat $ele_raw[0]`;
+#map { s/^\s+|\s+$//g; } @elements;
+#
+#my $elements = join(" ",@elements);
+#chomp $elements;
+#
+#
+#unless (@elements){
+#    print "No type_map.raw, you need to provide the DLP elements\n";
+#    @elements = ("");
+#}
+#
+#die "NO DLP elements assigned\n" unless (@elements);
+my @elements = ( "Al",
+         "B",
+         "Na",
+         "Ru");
 
 my @DLP_elements = (@elements);#your DLP element sequence
 

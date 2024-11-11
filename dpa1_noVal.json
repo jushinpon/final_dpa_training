@@ -13,7 +13,7 @@
             "rcut_smth": 7.5,
             "type": "se_atten_v2",
             "resnet_dt": false,
-            "attn_layer": 0,
+            "attn_layer": 1,
             "activation_function": "tanh",
             "attn_dotr": true,
             "sel": 120,

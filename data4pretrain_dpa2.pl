@@ -34,15 +34,15 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/dp_data/Alloy";
-my $DLPjson = "alloy_dpa2_pth_rcut9.json";
-my $out_dir = "Alloy_dpa2_pth_rcut9";#remember to assign the corresponding rcut
+my $source = "/home/shaohan/dp_train_test/have_add/dp_train_new/all_npy";
+my $DLPjson = "Borophene_dpa1_pth_rcut9.json";
+my $out_dir = "Borophene_dpa1_pth_rcut9";#remember to assign the corresponding rcut
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
-my $temp_json = "dpa2_noVal.json";
+my $temp_json = "dpa1_noVal.json";
 my $trainstep = 2000000;# 2500000 for final training
-my $descriptor_type = "dpa2";
+my $descriptor_type = "dpa1";
 
 
 my $rcut = 9.0000001;
@@ -52,19 +52,22 @@ my $rcut_smth = 8.00001;
 my $currentPath = getcwd();
 
 ### if type_map.raw exists
-my @ele_raw = `find $source -type f -name "type_map.raw"`;
-map { s/^\s+|\s+$//g; } @ele_raw;
-
-my @elements = `cat $ele_raw[0]`;
-map { s/^\s+|\s+$//g; } @elements;
-
-my $elements = join(" ",@elements);
-chomp $elements;
-
-unless (@elements){
-    print "No type_map.raw, you need to provide the DLP elements\n";
-    @elements = ("");
-}
+#my @ele_raw = `find $source -type f -name "type_map.raw"`;
+#map { s/^\s+|\s+$//g; } @ele_raw;
+#
+#my @elements = `cat $ele_raw[0]`;
+#map { s/^\s+|\s+$//g; } @elements;
+#
+#my $elements = join(" ",@elements);
+#chomp $elements;
+#
+#unless (@elements){
+#    print "No type_map.raw, you need to provide the DLP elements\n";
+my @elements = ( "Al",
+         "B",
+         "Na",
+         "Ru");
+#}
 
 die "NO DLP elements assigned\n" unless (@elements);
 
