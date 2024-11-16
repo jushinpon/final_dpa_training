@@ -1,27 +1,4 @@
 =b
-Mg-Y
-"rcut_smth":       2.00,
-"rcut":            8.00,
-
-water:
- "descriptor": {
-      "type": "se_atten_v2",
-      "sel": 120,
-      "rcut_smth": 0.50,
-      "rcut": 6.00,
-ionic bond:
-
-"rcut_smth": 0.5,
-"rcut": 6.0,
-
-ionic and partal covalent bonding:
-"rcut_smth": 6.0,
-"rcut": 7.0,
-
-dpa2 for multi-task
-"sel": 120,
-"rcut_smth": 8.0,
-"rcut": 9.0,      
 
 =cut
 
@@ -34,24 +11,26 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/jsp1/borophene/initial";
-#my $source = "/home/dp_data/Alloy";
+my $source = "/home/jsp1/all_npy/";#all your npy files
+my $ref_element_file = "oc2m_type_map.raw";
+my @my_elements = ("Hf","Nb","Ta","Ti","Zr","C","N");
+
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
-my $finetune = "no"; #no for scratch
-my $DLPjson = "borophene_pb_rcut6_smp5.json";
-my $out_dir = "borophene_pb_rcut6_smp5";#remember to assign the corresponding rcut
+my $finetune = "yes"; #no for scratch
+my $DLPjson = "hec_pb_rcut9_finetune.json";
+my $out_dir = "hec_pb_rcut9_finetune";#remember to assign the corresponding rcut
 #my $out_dir = "alloy_dpa1_pb";
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
 my $temp_json = "dpa1_noVal.json";
-my $trainstep = 1200000;# 2500000 for final training
+my $trainstep = 1000000;# 2500000 for final training
 my $descriptor_type = "dpa1";#no use
 
-my $rcut = 6.00001;
-my $rcut_smth = 0.5;
-my $lr = 0.001; #for training 0.001, for finetune 0.0001
+my $rcut = 9.00001;
+my $rcut_smth = 8.000001;
+my $lr = 0.0001; #for training 0.001, for finetune 0.0001
 #my $source = "/opt/OC2M";
 my $currentPath = getcwd();
 
@@ -71,20 +50,7 @@ my $currentPath = getcwd();
 #}
 #
 #die "NO DLP elements assigned\n" unless (@elements);
-#my @elements = (
-#         "Hf",
-#         "Nb",
-#         "Ta",
-#         "Ti",
-#         "Zr",
-#         "C",
-#         "N");
-#
 
-my @elements = ( "Al",
-         "B",
-         "Na",
-         "Ru");
 
 my @DLP_elements = (@elements);#your DLP element sequence
 

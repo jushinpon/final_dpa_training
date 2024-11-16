@@ -2,8 +2,8 @@
     "loss": {
         "start_pref_f": 100,
         "limit_pref_v": 0,
-        "limit_pref_f": 2,
-        "limit_pref_e": 1,
+        "limit_pref_f": 1,
+        "limit_pref_e": 0.1,
         "start_pref_v": 0,
         "start_pref_e": 0.1,
         "type": "ener"

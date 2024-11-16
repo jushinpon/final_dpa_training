@@ -20,11 +20,11 @@ my %sbatch_para = (
             #cpus_per_task => 1,
             partition => "All",#which partition you want to use
             #partition => "All",#which partition you want to use
-            basename => "hec_pb_rcut9_finetune", #for alloy.json
+            basename => "borophene_pb_rcut6_smp5", #for alloy.json
             #basename => "alloy_r9", #for alloy.json
             #basename => "oc2m_r9", #for alloy.json
-            out_dir => "hec_pb_rcut9_finetune",
-            finetune_file => "/opt/dpa_pretrained/oc2m_r9.pb"        
+            out_dir => "borophene_pb_rcut6_smp5"
+            #finetune_file => "/opt/dpa_pretrained/oc2m_r9.pb"        
             #out_dir => "OC2M_dpa1_pb_rcut9"        
             );
 
@@ -60,13 +60,13 @@ my $here_doc =<<"END_MESSAGE";
 
 hostname
 
-source /opt/anaconda3/bin/activate deepmd-cpu-v3
-export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
+#source /opt/anaconda3/bin/activate deepmd-cpu-v3
+#export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+#export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
 
-#source /opt/anaconda3/bin/activate deepmd-cpu
-#export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-#export PATH=/opt/deepmd-cpu/bin:\$PATH
+source /opt/anaconda3/bin/activate deepmd-cpu
+export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+export PATH=/opt/deepmd-cpu/bin:\$PATH
 
 
 node=$sbatch_para{nodes}
@@ -85,14 +85,14 @@ export OMP_NUM_THREADS=\$processors
 #export OMP_NUM_THREADS=1
 
 ## dpa1
-#dp train $basename.json --skip-neighbor-stat
-#dp freeze -o $basename.pb
-#dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
-
-## dpa1 finetune
-dp train $basename.json --skip-neighbor-stat --finetune $sbatch_para{finetune_file}
+dp train $basename.json --skip-neighbor-stat
 dp freeze -o $basename.pb
 dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
+
+## dpa1 finetune
+#dp train $basename.json --skip-neighbor-stat --finetune $sbatch_para{finetune_file}
+#dp freeze -o $basename.pb
+#dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
 
 ##dpa2 (no compress currently)
 #dp --pt train $basename.json --skip-neighbor-stat
