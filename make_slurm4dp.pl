@@ -16,15 +16,16 @@ use List::Util qw/shuffle/;
 my %sbatch_para = (
             nodes => 1,#how many nodes for your lmp job
             #nodes => 1,#how many nodes for your lmp job
-            threads => 1,,#modify it to 2, 4 if oom problem appears
+            threads => 1,#modify it to 2, 4 if oom problem appears
             #cpus_per_task => 1,
             partition => "All",#which partition you want to use
             #partition => "All",#which partition you want to use
             basename => "borophene_pb_rcut6_smp5", #for alloy.json
             #basename => "alloy_r9", #for alloy.json
             #basename => "oc2m_r9", #for alloy.json
-            out_dir => "borophene_pb_rcut6_smp5"
-            #finetune_file => "/opt/dpa_pretrained/oc2m_r9.pb"        
+            out_dir => "borophene_pb_rcut6_smp5",
+            finetune => "no",
+            finetune_file => "/opt/dpa_pretrained/oc2m_r9.pb"        
             #out_dir => "OC2M_dpa1_pb_rcut9"        
             );
 
@@ -60,14 +61,20 @@ my $here_doc =<<"END_MESSAGE";
 
 hostname
 
-#source /opt/anaconda3/bin/activate deepmd-cpu-v3
-#export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-#export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
+if [ -f /opt/anaconda3/bin/activate ]; then
+    
+    source /opt/anaconda3/bin/activate deepmd-cpu-v3
+    export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+    export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
 
-source /opt/anaconda3/bin/activate deepmd-cpu
-export LD_LIBRARY_PATH=/opt/deepmd-cpu/lib:/opt/deepmd-cpu/lib/deepmd_lmp:\$LD_LIBRARY_PATH
-export PATH=/opt/deepmd-cpu/bin:\$PATH
-
+elif [ -f /opt/miniconda3/bin/activate ]; then
+    source /opt/miniconda3/bin/activate deepmd-cpu-v3
+    export LD_LIBRARY_PATH=/opt/deepmd-cpu-v3/lib:/opt/deepmd-cpu-v3/lib/deepmd_lmp:\$LD_LIBRARY_PATH
+    export PATH=/opt/deepmd-cpu-v3/bin:\$PATH
+else
+    echo "Error: Neither /opt/anaconda3/bin/activate nor /opt/miniconda3/bin/activate found."
+    exit 1  # Exit the script if neither exists
+fi
 
 node=$sbatch_para{nodes}
 threads=\$(nproc)
@@ -99,10 +106,10 @@ dp compress -i $basename.pb -o $basename-compressed.pb -t $basename.json
 #dp --pt freeze -o $basename.pth
 
 END_MESSAGE
-    unlink "$sbatch_para{out_dir}/$basename.sh";
-    print "$sbatch_para{out_dir}/$basename.sh\n";
-    open(FH, "> $sbatch_para{out_dir}/$basename.sh") or die $!;
-    print FH $here_doc;
-    close(FH);        
-#}#  
+
+unlink "$sbatch_para{out_dir}/$basename.sh";
+print "$sbatch_para{out_dir}/$basename.sh\n";
+open(FH, "> $sbatch_para{out_dir}/$basename.sh") or die $!;
+print FH $here_doc;
+close(FH);        
 

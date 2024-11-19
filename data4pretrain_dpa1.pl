@@ -34,7 +34,7 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/jsp1/borophene/initial";
+my $source = "/home/jsp1/all_npy/initial/";
 #my $source = "/home/dp_data/Alloy";
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
@@ -46,7 +46,7 @@ my $out_dir = "borophene_pb_rcut6_smp5";#remember to assign the corresponding rc
 `mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
 my $temp_json = "dpa1_noVal.json";
-my $trainstep = 1200000;# 2500000 for final training
+my $trainstep = 1000000;# 2500000 for final training
 my $descriptor_type = "dpa1";#no use
 
 my $rcut = 6.00001;
@@ -91,6 +91,8 @@ my @DLP_elements = (@elements);#your DLP element sequence
 my @train_dir = `find $source -type d -name "set*"`;
 # Remove /set*** from each path
 map { s|/set.*$||; } @train_dir;
+my %seen;
+@train_dir = grep { !$seen{$_}++ } map { s|/set.*$||r } @train_dir;
 map { s/^\s+|\s+$//g; } @train_dir;
 die "No training dataset was found\n" unless(@train_dir);
 
