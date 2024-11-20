@@ -34,23 +34,23 @@ use List::Util qw(max);
 
 #use lib '.';
 #use elements;
-my $source = "/home/jsp1/all_npy/initial/";
+my $source = "/home/jsp/SnPbTe_alloys/dp_train_new/all_npy/initial/";
 #my $source = "/home/dp_data/Alloy";
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
 my $finetune = "no"; #no for scratch
-my $DLPjson = "borophene_pb_rcut6_smp5.json";
-my $out_dir = "borophene_pb_rcut6_smp5";#remember to assign the corresponding rcut
+my $DLPjson = "SnPbTe_pb_rcut8_vir.json";
+my $out_dir = "SnPbTe_pb_rcut8_vir";#remember to assign the corresponding rcut
 #my $out_dir = "alloy_dpa1_pb";
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
 #my $temp_json = "trade-off.json";
 my $temp_json = "dpa1_noVal.json";
-my $trainstep = 1000000;# 2500000 for final training
+my $trainstep = 2000000;# 2500000 for final training
 my $descriptor_type = "dpa1";#no use
 
-my $rcut = 6.00001;
-my $rcut_smth = 0.5;
+my $rcut = 8.00001;
+my $rcut_smth = 7.000001;
 my $lr = 0.001; #for training 0.001, for finetune 0.0001
 #my $source = "/opt/OC2M";
 my $currentPath = getcwd();
@@ -71,20 +71,8 @@ my $currentPath = getcwd();
 #}
 #
 #die "NO DLP elements assigned\n" unless (@elements);
-#my @elements = (
-#         "Hf",
-#         "Nb",
-#         "Ta",
-#         "Ti",
-#         "Zr",
-#         "C",
-#         "N");
-#
-
-my @elements = ( "Al",
-         "B",
-         "Na",
-         "Ru");
+my @elements = (
+         "Sn","Pb","Te");
 
 my @DLP_elements = (@elements);#your DLP element sequence
 
