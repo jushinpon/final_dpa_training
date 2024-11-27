@@ -39,8 +39,11 @@ my $source = "/home/jsp/SnPbTe_alloys/dp_train_new/all_npy/initial/";
 #my $source = "/home/dp_data/OC2M";
 #my $DLPjson = "oc2m_r9.json";
 my $finetune = "no"; #no for scratch
-my $DLPjson = "SnPbTe_pb_rcut8_vir1.json";
-my $out_dir = "SnPbTe_pb_rcut8_vir1";#remember to assign the corresponding rcut
+my $DLPjson = "SnPbTe_pb_rcut8_vir_prob.json";
+my $out_dir = "SnPbTe_pb_rcut8_vir_prob";#remember to assign the corresponding rcut
+
+my @prob_patterns = ("mp-1883","mp-19717");#larger prob
+my $prob_weight = 10;# the rest: 0.1:
 #my $out_dir = "alloy_dpa1_pb";
 `rm -rf $out_dir`;
 `mkdir -p $out_dir`;
@@ -137,6 +140,30 @@ my $decoded = $json_parser->decode($json);
 #my $decoded = decode_json($json);
 
 $decoded->{training}->{training_data}->{systems} = [@all_train_dataset];#clean it first
+
+# Create probability array
+
+# Create probability array
+my @prob = map { 
+    my $val = $_; 
+    (scalar grep { $val =~ /\Q$_\E/ } @prob_patterns) > 0 ? $prob_weight : 0.1 
+} @all_train_dataset;
+
+
+# Calculate the total sum of probabilities
+my $sum_prob = 0;
+$sum_prob += $_ for @prob;
+
+# Normalize probabilities so their total is 1
+@prob = map { $_ / $sum_prob } @prob;
+
+#my @prob = map { 
+#    my $val = $_; 
+#    grep { $val eq $_ } @prob_patterns ? $prob_weight : 0.1 
+#} @all_train_dataset;
+
+$decoded->{training}->{training_data}->{sys_probs} = [@prob];#clean it first
+
 #find folders with /val
 #$decoded->{training}->{validation_data}->{systems} = [@all_val_dataset];#clean it first
 $decoded->{model}->{type_map} = [@DLP_elements];#clean it first
